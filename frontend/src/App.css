@@ -12,6 +12,10 @@
   --bg: #020617;
   --bg-elevated: #0F172A;
   --shadow: rgba(6, 182, 212, 0.1);
+  --surface: #414348;        
+  --surface-soft: #77797c;   
+  --surface-border: #7b7d7f;
+  --text2: black;
 }
 
 * {
@@ -160,7 +164,7 @@ body {
 }
 
 .stat-card {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+  background: linear-gradient(135deg,var(--surface) 0%,var(--surface-soft) 100%);
   padding: 1.75rem;
   border-radius: 16px;
   border: 1px solid rgba(6, 182, 212, 0.3);
@@ -185,12 +189,12 @@ body {
   border-color: var(--accent);
   transform: translateY(-4px);
   box-shadow: 0 12px 32px rgba(6, 182, 212, 0.3);
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(6, 182, 212, 0.08) 100%);
+  background: linear-gradient(135deg,var(--surface) 0%,var(--surface-soft) 100%);
 }
 
 .stat-label {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: var(--text);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 0.5rem;
@@ -242,7 +246,7 @@ body {
   padding: 0.875rem 1.25rem;
   border-radius: 12px;
   border: 1px solid rgba(6, 182, 212, 0.3);
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(6, 182, 212, 0.03) 100%);
+  background: var(--surface);
   color: var(--text);
   font-size: 0.9375rem;
   transition: all 0.2s;
@@ -252,14 +256,15 @@ body {
 .search-input {
   flex: 1;
   min-width: 300px;
+  color: var(--text2)
 }
 
 .search-input:focus,
 .filter-select:focus {
   outline: none;
   border-color: var(--accent);
-  background: rgba(6, 182, 212, 0.12);
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.12);
 }
 
 .filter-select {
@@ -392,8 +397,8 @@ body {
   flex: 1;
   padding: 0.625rem 1rem;
   border-radius: 8px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--surface-border);
+  background: rgb(22, 74, 105);
   color: var(--text);
   font-size: 0.875rem;
   cursor: pointer;
