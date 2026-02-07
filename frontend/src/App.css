@@ -160,10 +160,10 @@ body {
 }
 
 .stat-card {
-  background: var(--bg-elevated);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
   padding: 1.75rem;
   border-radius: 16px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(6, 182, 212, 0.3);
   position: relative;
   overflow: hidden;
   transition: all 0.3s;
@@ -176,19 +176,16 @@ body {
   left: 0;
   width: 4px;
   height: 100%;
-  background: var(--accent);
-  opacity: 0;
+  background: linear-gradient(180deg, var(--accent) 0%, #60A5FA 100%);
+  opacity: 1;
   transition: opacity 0.3s;
 }
 
 .stat-card:hover {
   border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--shadow);
-}
-
-.stat-card:hover::before {
-  opacity: 1;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(6, 182, 212, 0.3);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(6, 182, 212, 0.08) 100%);
 }
 
 .stat-label {
@@ -204,7 +201,10 @@ body {
   font-family: 'Syne', sans-serif;
   font-size: 2.25rem;
   font-weight: 800;
-  color: var(--text);
+  background: linear-gradient(135deg, var(--accent) 0%, #60A5FA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Search and Filter */
@@ -215,12 +215,34 @@ body {
   flex-wrap: wrap;
 }
 
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-input-wrapper::before {
+  content: '🔍';
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.1rem;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.search-input-wrapper .search-input {
+  padding-left: 3rem;
+  width: 100%;
+}
+
 .search-input,
 .filter-select {
   padding: 0.875rem 1.25rem;
   border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(6, 182, 212, 0.03) 100%);
   color: var(--text);
   font-size: 0.9375rem;
   transition: all 0.2s;
@@ -236,7 +258,8 @@ body {
 .filter-select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+  background: rgba(6, 182, 212, 0.12);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
 }
 
 .filter-select {
@@ -634,6 +657,7 @@ body {
   text-decoration: underline;
 }
 
+/* Error Message */
 .error-message {
   background: rgba(239, 68, 68, 0.1);
   color: var(--danger);
@@ -655,6 +679,7 @@ body {
   font-size: 0.9375rem;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -687,6 +712,7 @@ body {
   }
 }
 
+/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
