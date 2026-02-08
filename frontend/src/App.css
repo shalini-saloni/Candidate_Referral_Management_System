@@ -256,7 +256,7 @@ body {
 .search-input {
   flex: 1;
   min-width: 300px;
-  color: var(--text2)
+  color: var(--text)
 }
 
 .search-input:focus,
