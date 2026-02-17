@@ -3,8 +3,6 @@ const router = express.Router();
 const Candidate = require('../models/Candidate');
 const upload = require('../config/multer');
 const { protect } = require('../middleware/auth');
-const path = require('path');
-const fs = require('fs');
 
 router.get('/', async (req, res, next) => {
   try {
@@ -28,6 +26,7 @@ router.get('/', async (req, res, next) => {
     }
 
     const candidates = await Candidate.find(query)
+      .select('-resumeData')
       .sort({ createdAt: -1 })
       .populate('referredBy', 'name email');
 
@@ -69,6 +68,7 @@ router.get('/stats', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const candidate = await Candidate.findById(req.params.id)
+      .select('-resumeData')  
       .populate('referredBy', 'name email');
 
     if (!candidate) {
@@ -87,15 +87,43 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
+router.get('/:id/resume', async (req, res, next) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id)
+      .select('resumeData resumeFileName resumeMimeType');
+
+    if (!candidate) {
+      return res.status(404).json({
+        success: false,
+        message: 'Candidate not found'
+      });
+    }
+
+    if (!candidate.resumeData) {
+      return res.status(404).json({
+        success: false,
+        message: 'No resume found for this candidate'
+      });
+    }
+
+    const pdfBuffer = Buffer.from(candidate.resumeData, 'base64');
+
+    res.setHeader('Content-Type', candidate.resumeMimeType || 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${candidate.resumeFileName || 'resume.pdf'}"`);
+    res.setHeader('Content-Length', pdfBuffer.length);
+
+    res.send(pdfBuffer);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/', upload.single('resume'), async (req, res, next) => {
   try {
     const { name, email, phone, jobTitle, notes } = req.body;
 
     const existingCandidate = await Candidate.findOne({ email });
     if (existingCandidate) {
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(400).json({
         success: false,
         message: 'Candidate with this email already exists'
@@ -111,8 +139,9 @@ router.post('/', upload.single('resume'), async (req, res, next) => {
     };
 
     if (req.file) {
-      candidateData.resumeUrl = `/uploads/${req.file.filename}`;
+      candidateData.resumeData = req.file.buffer.toString('base64');
       candidateData.resumeFileName = req.file.originalname;
+      candidateData.resumeMimeType = req.file.mimetype;
     }
 
     if (req.user) {
@@ -121,15 +150,15 @@ router.post('/', upload.single('resume'), async (req, res, next) => {
 
     const candidate = await Candidate.create(candidateData);
 
+    const responseData = candidate.toObject();
+    delete responseData.resumeData;
+
     res.status(201).json({
       success: true,
       message: 'Candidate created successfully',
-      data: candidate
+      data: responseData
     });
   } catch (error) {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
     next(error);
   }
 });
@@ -145,7 +174,7 @@ router.put('/:id/status', async (req, res, next) => {
       });
     }
 
-    const candidate = await Candidate.findById(req.params.id);
+    const candidate = await Candidate.findById(req.params.id).select('-resumeData');
 
     if (!candidate) {
       return res.status(404).json({
@@ -174,9 +203,6 @@ router.put('/:id', upload.single('resume'), async (req, res, next) => {
     const candidate = await Candidate.findById(req.params.id);
 
     if (!candidate) {
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
       return res.status(404).json({
         success: false,
         message: 'Candidate not found'
@@ -190,27 +216,22 @@ router.put('/:id', upload.single('resume'), async (req, res, next) => {
     if (notes !== undefined) candidate.notes = notes;
 
     if (req.file) {
-      if (candidate.resumeUrl) {
-        const oldFilePath = path.join(__dirname, '..', candidate.resumeUrl);
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
-        }
-      }
-      candidate.resumeUrl = `/uploads/${req.file.filename}`;
+      candidate.resumeData = req.file.buffer.toString('base64');
       candidate.resumeFileName = req.file.originalname;
+      candidate.resumeMimeType = req.file.mimetype;
     }
 
     await candidate.save();
 
+    const responseData = candidate.toObject();
+    delete responseData.resumeData;
+
     res.status(200).json({
       success: true,
       message: 'Candidate updated successfully',
-      data: candidate
+      data: responseData
     });
   } catch (error) {
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
     next(error);
   }
 });
@@ -224,13 +245,6 @@ router.delete('/:id', async (req, res, next) => {
         success: false,
         message: 'Candidate not found'
       });
-    }
-
-    if (candidate.resumeUrl) {
-      const filePath = path.join(__dirname, '..', candidate.resumeUrl);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
     }
 
     await candidate.deleteOne();

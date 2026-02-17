@@ -24,6 +24,7 @@ const candidateSchema = new mongoose.Schema({
     required: [true, 'Phone number is required'],
     validate: {
       validator: function(v) {
+        // Accepts various phone formats: +1234567890, 123-456-7890, (123) 456-7890, etc.
         return /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}$/.test(v);
       },
       message: 'Please provide a valid phone number'
@@ -44,13 +45,17 @@ const candidateSchema = new mongoose.Schema({
     },
     default: 'Pending'
   },
-  resumeUrl: {
-    type: String,
+  resumeData: {
+    type: String,      
     default: null
   },
   resumeFileName: {
     type: String,
     default: null
+  },
+  resumeMimeType: {
+    type: String,
+    default: 'application/pdf'
   },
   referredBy: {
     type: mongoose.Schema.Types.ObjectId,
